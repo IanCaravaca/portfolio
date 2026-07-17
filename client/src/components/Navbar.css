@@ -1,0 +1,11 @@
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+}
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 30px;
+}
