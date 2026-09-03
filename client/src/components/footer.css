@@ -1,0 +1,10 @@
+.footer {
+  padding: 32px 0;
+  background-color: var(--color-surface);
+  text-align: center;
+}
+
+.footer p {
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}

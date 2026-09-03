@@ -1,0 +1,43 @@
+.about {
+  padding: 80px 0;
+}
+
+.about h2 {
+  font-size: 36px;
+  margin-bottom: 32px;
+}
+
+.about-description {
+  max-width: 700px;
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+}
+
+.about-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+}
+
+.about-skills h3 {
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.about-skills span {
+  padding: 8px 14px;
+  background-color: var(--color-surface);
+  border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+  .about-content {
+    grid-template-columns: 1fr;
+  }
+}
