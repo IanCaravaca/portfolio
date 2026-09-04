@@ -111,7 +111,7 @@ function Contact() {
           <Button type="submit">Enviar mensaje</Button>
         </form>
         {success && (
-          <p className="success-message">Mensaje enviado correctamente.</p>
+          <p className="success-message">Mensaje recibido correctamente.</p>
         )}
         {error && <p className="error-message">{error}</p>}
       </Container>
