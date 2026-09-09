@@ -1,4 +1,5 @@
 const express = require("express");
+const authMiddleware = require("../middleware/authMiddleware");
 const {
   handleContact,
   getContacts,
@@ -9,7 +10,7 @@ const {
 const router = express.Router();
 
 router.post("/", handleContact);
-router.get("/", getContacts);
-router.put("/:id", updateContact);
-router.delete("/:id", deleteContact);
+router.get("/", authMiddleware, getContacts);
+router.put("/:id", authMiddleware, updateContact);
+router.delete("/:id", authMiddleware, deleteContact);
 module.exports = router;
