@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-
+import ContactCard from "./ContactCard";
 function AdminContacts({ onLogout }) {
   const [contacts, setContacts] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState("");
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editMessage, setEditMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+
   const handleUnauthorized = (response) => {
     if (response.status === 401) {
       onLogout();
@@ -16,118 +19,148 @@ function AdminContacts({ onLogout }) {
   };
   useEffect(() => {
     const fetchContacts = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        setLoading(true);
+        const response = await fetch("http://localhost:3000/api/contact", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+
+        if (handleUnauthorized(response)) {
+          return;
+        }
+
+        if (!response.ok) {
+          setError(data.message);
+          return;
+        }
+
+        setError("");
+        setContacts(data);
+      } catch (error) {
+        setError("No se pudo conectar con el servidor.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchContacts();
+  }, []);
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "¿Seguro que querés eliminar este contacto?",
+    );
+
+    if (!confirmed) {
+      return;
+    }
+    try {
       const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:3000/api/contact", {
-        method: "GET",
+
+      const response = await fetch(`http://localhost:3000/api/contact/${id}`, {
+        method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
       const data = await response.json();
+
+      if (handleUnauthorized(response)) {
+        return;
+      }
+
+      if (!response.ok) {
+        setError(data.message);
+        return;
+      }
+
+      setError("");
+
+      setContacts(contacts.filter((contact) => contact.id !== id));
+    } catch (error) {
+      setError("No se pudo conectar con el servidor.");
+    }
+  };
+  const handleUpdate = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`http://localhost:3000/api/contact/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: editName,
+          email: editEmail,
+          message: editMessage,
+        }),
+      });
+      const data = await response.json();
+
       if (handleUnauthorized(response)) {
         return;
       }
       if (!response.ok) {
-        console.log(data.message);
+        setError(data.message);
         return;
       }
-      setContacts(data);
-    };
 
-    fetchContacts();
-  }, []);
-  const handleDelete = async (id) => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3000/api/contact/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    if (handleUnauthorized(response)) {
-      return;
-    }
-    if (!response.ok) {
-      console.log(data.message);
-      return;
-    }
-    setContacts(contacts.filter((contact) => contact.id !== id));
-  };
-  const handleUpdate = async (id) => {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`http://localhost:3000/api/contact/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        name: editName,
-        email: editEmail,
-        message: editMessage,
-      }),
-    });
-    const data = await response.json();
+      setError("");
+      setContacts(
+        contacts.map((contact) => (contact.id === id ? data : contact)),
+      );
 
-    if (handleUnauthorized(response)) {
-      return;
+      setEditingId(null);
+    } catch (error) {
+      setError("No se pudo conectar con el servidor.");
     }
-    if (!response.ok) {
-      console.log(data.message);
-      return;
-    }
-    setContacts(
-      contacts.map((contact) => (contact.id === id ? data : contact)),
-    );
-
-    setEditingId(null);
   };
 
   return (
     <section>
-      <h2>Contactos</h2>
-      <button onClick={onLogout}>Cerrar sesión</button>
-      {contacts.map((contact) => (
-        <div key={contact.id}>
-          <p>Nombre: {contact.name}</p>
-          <p>Email: {contact.email}</p>
-          <p>Mensaje: {contact.message}</p>
-          {editingId === contact.id && (
-            <div>
-              <input
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-              />
+      <div className="admin-header">
+        <h2>Contactos</h2>
 
-              <input
-                type="email"
-                value={editEmail}
-                onChange={(e) => setEditEmail(e.target.value)}
-              />
-              <textarea
-                value={editMessage}
-                onChange={(e) => setEditMessage(e.target.value)}
-              />
-              <button onClick={() => handleUpdate(contact.id)}>Guardar</button>
-              <button onClick={() => setEditingId(null)}>Cancelar</button>
-            </div>
-          )}
-          <button
-            onClick={() => {
-              setEditingId(contact.id);
-              setEditName(contact.name);
-              setEditEmail(contact.email);
-              setEditMessage(contact.message);
-            }}
-          >
-            Editar
-          </button>
+        <button className="admin-logout-button" onClick={onLogout}>
+          Cerrar sesión
+        </button>
+      </div>
+      {error && <p className="admin-error">{error}</p>}
+      {loading && <p className="admin-status">Cargando contactos...</p>}
 
-          <button onClick={() => handleDelete(contact.id)}>Eliminar</button>
-        </div>
-      ))}
+      {!loading && !error && contacts.length === 0 && (
+        <p className="admin-status">No hay contactos todavía.</p>
+      )}
+      {!loading &&
+        contacts.map((contact) => (
+          <div key={contact.id}>
+            <ContactCard
+              contact={contact}
+              onDelete={() => handleDelete(contact.id)}
+              onEdit={() => {
+                setEditingId(contact.id);
+                setEditName(contact.name);
+                setEditEmail(contact.email);
+                setEditMessage(contact.message);
+              }}
+              isEditing={editingId === contact.id}
+              editName={editName}
+              editEmail={editEmail}
+              editMessage={editMessage}
+              setEditName={setEditName}
+              setEditEmail={setEditEmail}
+              setEditMessage={setEditMessage}
+              onSave={() => handleUpdate(contact.id)}
+              onCancel={() => setEditingId(null)}
+            />
+          </div>
+        ))}
     </section>
   );
 }
