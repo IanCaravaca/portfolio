@@ -1,40 +1,7 @@
 const pool = require("../db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const register = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({
-      message: "Email y contraseña son obligatorios",
-    });
-  }
-  if (password.length < 8) {
-    return res.status(400).json({
-      message: "La contraseña debe tener al menos 8 caracteres",
-    });
-  }
 
-  try {
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const result = await pool.query(
-      `INSERT INTO users (email, password_hash)
-     VALUES ($1, $2)
-     RETURNING *`,
-      [email, passwordHash],
-    );
-
-    res.status(201).json({
-      message: "Usuario creado correctamente",
-    });
-  } catch (error) {
-    console.log("Error al crear usuario:", error);
-
-    res.status(500).json({
-      message: "Error interno del servidor",
-    });
-  }
-};
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -85,7 +52,4 @@ const login = async (req, res) => {
     });
   }
 };
-module.exports = {
-  register,
-  login,
-};
+module.exports = { login };

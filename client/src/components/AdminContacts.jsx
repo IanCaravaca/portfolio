@@ -22,12 +22,15 @@ function AdminContacts({ onLogout }) {
       try {
         const token = localStorage.getItem("token");
         setLoading(true);
-        const response = await fetch("http://localhost:3000/api/contact", {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/contact`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const data = await response.json();
 
@@ -61,12 +64,15 @@ function AdminContacts({ onLogout }) {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`http://localhost:3000/api/contact/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/contact/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       const data = await response.json();
 
@@ -89,18 +95,21 @@ function AdminContacts({ onLogout }) {
   const handleUpdate = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:3000/api/contact/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/contact/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: editName,
+            email: editEmail,
+            message: editMessage,
+          }),
         },
-        body: JSON.stringify({
-          name: editName,
-          email: editEmail,
-          message: editMessage,
-        }),
-      });
+      );
       const data = await response.json();
 
       if (handleUnauthorized(response)) {
