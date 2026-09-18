@@ -11,11 +11,13 @@ const login = async (req, res) => {
     });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
   try {
     const result = await pool.query(
       `SELECT * FROM users
        WHERE email = $1`,
-      [email],
+      [normalizedEmail],
     );
 
     if (result.rows.length === 0) {
