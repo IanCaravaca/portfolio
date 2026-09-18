@@ -19,14 +19,14 @@ app.use(express.json());
 app.use("/api/contact", contactRoutes);
 app.use("/api/auth", authRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
   res.send("Backend funcionando");
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`Servidor funcionando con Nodemon en el puerto ${PORT}`);
+  console.log(`Servidor funcionando en el puerto ${PORT}`);
 });
 
 server.on("close", () => {
